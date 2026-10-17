@@ -9,7 +9,7 @@ description = "Show Ansible playbook host dispatch plans without running tasks"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "ansible-core>=2.19,<2.20",
 ]

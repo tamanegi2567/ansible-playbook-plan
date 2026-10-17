@@ -19,17 +19,24 @@ Use it to preview how Ansible will divide a rollout before running
 Run directly from the Git repository with `uvx`:
 
 ```sh
-uvx --from git+https://github.com/tamanegi2567/ansible-playbook-plan.git \
+uvx --python 3.13 --from git+https://github.com/tamanegi2567/ansible-playbook-plan.git \
   ansible-playbook-plan --help
 ```
 
 Alternatively, install it with `pipx`:
 
 ```sh
-pipx install git+https://github.com/tamanegi2567/ansible-playbook-plan.git
+pipx install --python python3.13 git+https://github.com/tamanegi2567/ansible-playbook-plan.git
 ```
 
-Python 3.11 or newer and Ansible Core 2.19 are supported.
+Python 3.11–3.13 and Ansible Core 2.19 are supported. Python 3.14 and newer
+are not supported by Ansible Core 2.19. The `--python 3.13` option above keeps
+`uvx` from using an unsupported default interpreter. For `pipx`, install
+Python 3.13 first and ensure `python3.13` is on your `PATH`.
+
+If `uvx` cached an older Git revision, add `--refresh` to the command to fetch
+the updated package. uv can ignore package Python upper bounds during tool
+resolution, so this command explicitly selects Python 3.13.
 
 ## Quick start
 

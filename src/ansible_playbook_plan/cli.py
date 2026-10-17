@@ -3,6 +3,17 @@
 
 from __future__ import annotations
 
+import sys
+
+
+# uv tool resolution can ignore Requires-Python upper bounds.
+if not (3, 11) <= sys.version_info[:2] < (3, 14):
+    raise SystemExit(
+        "ansible-playbook-plan requires Python 3.11-3.13 (Ansible Core 2.19); "
+        f"found Python {sys.version_info.major}.{sys.version_info.minor}. "
+        "Run uvx with --python 3.13."
+    )
+
 # Import ansible.cli first so Ansible can initialize its controller state.
 from ansible.cli import CLI
 
