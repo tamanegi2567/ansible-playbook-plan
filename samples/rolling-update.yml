@@ -1,0 +1,17 @@
+---
+- name: Preview a rolling application update
+  hosts: application_servers
+  order: sorted
+  serial: "{{ rollout_serial | default(2) }}"
+  gather_facts: false
+  pre_tasks:
+    - name: Check each batch once
+      ansible.builtin.debug:
+        msg: Check the next batch
+      run_once: true
+      when: checks_enabled | default(true) | bool
+  tasks:
+    - name: Update each application server
+      ansible.builtin.debug:
+        msg: Update the application
+      throttle: 1

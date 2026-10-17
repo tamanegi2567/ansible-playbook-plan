@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ansible-playbook-plan"
+version = "0.1.0"
+description = "Show Ansible playbook host dispatch plans without running tasks"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dependencies = [
+    "ansible-core>=2.19,<2.20",
+]
+
+[project.urls]
+Repository = "https://github.com/tamanegi2567/ansible-playbook-plan"
+Issues = "https://github.com/tamanegi2567/ansible-playbook-plan/issues"
+
+[project.scripts]
+ansible-playbook-plan = "ansible_playbook_plan.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4,<9",
+    "ruff>=0.14,<0.15",
+    "tox>=4,<5",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ansible_playbook_plan"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88

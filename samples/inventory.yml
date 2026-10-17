@@ -1,0 +1,9 @@
+---
+all:
+  children:
+    application_servers:
+      hosts:
+        app-03:
+        app-01:
+        app-04:
+        app-02:
