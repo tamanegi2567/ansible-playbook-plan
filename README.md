@@ -19,24 +19,41 @@ Use it to preview how Ansible will divide a rollout before running
 Run directly from the Git repository with `uvx`:
 
 ```sh
-uvx --python 3.13 --from git+https://github.com/tamanegi2567/ansible-playbook-plan.git \
+uvx --python 3.14 --from git+https://github.com/tamanegi2567/ansible-playbook-plan.git \
   ansible-playbook-plan --help
 ```
 
 Alternatively, install it with `pipx`:
 
 ```sh
-pipx install --python python3.13 git+https://github.com/tamanegi2567/ansible-playbook-plan.git
+pipx install --python python3.14 git+https://github.com/tamanegi2567/ansible-playbook-plan.git
 ```
 
-Python 3.11–3.13 and Ansible Core 2.19 are supported. Python 3.14 and newer
-are not supported by Ansible Core 2.19. The `--python 3.13` option above keeps
-`uvx` from using an unsupported default interpreter. For `pipx`, install
-Python 3.13 first and ensure `python3.13` is on your `PATH`.
+Python 3.14 with Ansible Core 2.21 is recommended. Supported combinations:
+
+| Python | Ansible Core |
+| --- | --- |
+| 3.11 | 2.19 |
+| 3.12 / 3.13 | 2.19 / 2.20 / 2.21 |
+| 3.14 | 2.20 / 2.21 |
+
+The explicit Python option keeps tools from using an unsupported interpreter.
+For `pipx`, install Python 3.14 first and ensure `python3.14` is on your `PATH`.
+
+### Support policy
+
+We target release series receiving upstream security updates and recommend the
+latest patch release in each series. Python 3.11 and Ansible Core 2.19 remain
+supported during this transition. When Core 2.19 reaches its scheduled end of
+life in November 2026, a separate update will raise the minimum versions to
+Python 3.12 and Core 2.20.
+
+See the [Python lifecycle](https://devguide.python.org/versions/) and
+[Ansible Core support matrix](https://docs.ansible.com/projects/ansible-core/devel/reference_appendices/release_and_maintenance.html#ansible-core-support-matrix).
 
 If `uvx` cached an older Git revision, add `--refresh` to the command to fetch
 the updated package. uv can ignore package Python upper bounds during tool
-resolution, so this command explicitly selects Python 3.13.
+resolution, so this command explicitly selects Python 3.14.
 
 ## Quick start
 
@@ -117,9 +134,13 @@ ansible-playbook-plan \
 ## Continuous integration
 
 [GitHub Actions](https://github.com/tamanegi2567/ansible-playbook-plan/actions/workflows/ci.yml)
-runs for pull requests and pushes to `main`. It tests Python 3.11 and 3.13;
-Python 3.13 also runs Ruff linting, formatting checks, and the package build.
-Dependencies are installed from the committed lockfile using public PyPI.
+runs for pull requests and pushes to `main`. All nine supported Python/Core
+combinations run the tests in isolated tox environments, using the latest
+available patch of the selected Core series from public PyPI. Each job also
+checks the committed lockfile; it selects Core 2.19 on Python 3.11 and Core 2.21
+on Python 3.12–3.14.
+Python 3.14 / Core 2.21 also runs Ruff, builds the package, and smoke tests
+the wheel in a separate environment.
 See [Actions security settings](.github/ACTIONS_SECURITY.md) for workflow controls
 and the repository settings to apply before accepting external contributions.
 
@@ -130,6 +151,7 @@ Install dependencies and run the checks with `uv`:
 ```sh
 uv sync --locked --all-groups
 uv run --locked pytest
+uv run --locked tox
 uv run --locked ruff check .
 uv run --locked ruff format --check .
 uv build

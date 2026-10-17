@@ -39,7 +39,7 @@ apply them under **Settings > Actions > General**:
    artifacts and does not use a shared Actions cache.
 
 For `main`, use a branch ruleset to require pull requests, successful CI checks
-(`Python 3.11` and `Python 3.13`), block force pushes, and block branch deletion.
+(all nine `Python <version> / Core <version>` checks listed in the README), block force pushes, and block branch deletion.
 After the first successful run, select the actual check names in the ruleset UI.
 If another trusted maintainer is available, also require their review for workflow
 and dependency changes. A solo maintainer cannot approve their own pull request.

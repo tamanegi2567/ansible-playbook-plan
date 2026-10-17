@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   check:
-    name: Python ${{ matrix.python-version }}
+    name: Python ${{ matrix.python-version }} / Core ${{ matrix.core-version }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -23,7 +23,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.13"]
+        python-version: ["3.12", "3.13", "3.14"]
+        core-version: ["2.19", "2.20", "2.21"]
+        exclude:
+          - python-version: "3.14"
+            core-version: "2.19"
+        include:
+          - python-version: "3.11"
+            core-version: "2.19"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -37,14 +44,27 @@ jobs:
           enable-cache: false
       - name: Install dependencies
         run: uv sync --locked --all-groups
+      - name: Verify locked Ansible selection
+        run: |
+          uv run --locked python -c "import sys; from importlib.metadata import version; expected = '2.19.' if sys.version_info[:2] == (3, 11) else '2.21.'; assert version('ansible-core').startswith(expected)"
       - name: Run tests
-        run: uv run --locked pytest
+        run: uv run --locked tox -e "py${PYTHON_VERSION//./}-core${CORE_VERSION//./}"
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+          CORE_VERSION: ${{ matrix.core-version }}
       - name: Check lint
-        if: matrix.python-version == '3.13'
+        if: matrix.python-version == '3.14' && matrix.core-version == '2.21'
         run: uv run --locked ruff check .
       - name: Check formatting
-        if: matrix.python-version == '3.13'
+        if: matrix.python-version == '3.14' && matrix.core-version == '2.21'
         run: uv run --locked ruff format --check .
       - name: Build package
-        if: matrix.python-version == '3.13'
+        if: matrix.python-version == '3.14' && matrix.core-version == '2.21'
         run: uv build
+      - name: Smoke test wheel
+        if: matrix.python-version == '3.14' && matrix.core-version == '2.21'
+        run: |
+          uv venv /tmp/plan-wheel --python 3.14
+          uv pip install --python /tmp/plan-wheel/bin/python dist/*.whl
+          /tmp/plan-wheel/bin/ansible-playbook-plan --help
+          /tmp/plan-wheel/bin/ansible-playbook-plan -i samples/inventory.yml --forks 1 -e rollout_serial=2 samples/rolling-update.yml
